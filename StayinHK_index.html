@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>香港停留日數追蹤器</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="追蹤您在香港的停留日數，計算課稅年度天數">
+    <meta name="theme-color" content="#E94560">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HK Days">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- PWA Icons (使用 emoji 作為臨時圖標，部署時請替換為真實圖片) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23E94560' width='100' height='100' rx='20'/><text y='.9em' font-size='80' x='10'>🇭🇰</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23E94560' width='100' height='100' rx='20'/><text y='.9em' font-size='80' x='10'>🇭🇰</text></svg>">
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E94560;
+            --primary-dark: #C73E54;
+            --accent: #FFD700;
+            --bg-dark: #0F0E17;
+            --bg-card: #1A1925;
+            --bg-hover: #2A2937;
+            --text-primary: #FFFFFE;
+            --text-secondary: #A7A9BE;
+            --text-muted: #6B6D7C;
+            --success: #2CB67D;
+            --border: #2E2D3D;
+            --today-ring: #00D9FF;
+        }
+
+        .light {
+            --primary: #D64161;
+            --primary-dark: #B8354F;
+            --accent: #D4A017;
+            --bg-dark: #F8F7F4;
+            --bg-card: #FFFFFF;
+            --bg-hover: #F0EFE9;
+            --text-primary: #1A1A2E;
+            --text-secondary: #5C5C6D;
+            --text-muted: #9090A0;
+            --success: #2CB67D;
+            --border: #E0DED8;
+            --today-ring: #0099CC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            line-height: 1.6;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(233, 69, 96, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 217, 255, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
+        }
+
+        /* PWA Install Banner */
+        .pwa-install-banner {
+            display: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .pwa-install-banner.show {
+            display: flex;
+        }
+
+        .pwa-install-banner p {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .pwa-install-btn {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .pwa-install-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.8;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .year-selector {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .year-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .year-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .year-display {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 0 16px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--primary);
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .stat-card.tax-year::before {
+            background: linear-gradient(90deg, var(--success), var(--today-ring));
+        }
+
+        .stat-card.threshold-met::before {
+            background: linear-gradient(90deg, #FF6B6B, var(--primary));
+        }
+
+        .stat-card.threshold-safe::before {
+            background: linear-gradient(90deg, var(--success), #4ECDC4);
+        }
+
+        .threshold-warning {
+            color: var(--primary) !important;
+            font-weight: 600;
+        }
+
+        .threshold-safe {
+            color: var(--success) !important;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-value span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Calendar Grid */
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .calendar-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .calendar-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .month-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .month-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .month-header {
+            padding: 14px 16px;
+            background: var(--bg-hover);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .month-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .month-count {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--primary);
+            background: rgba(233, 69, 96, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .month-grid {
+            padding: 12px;
+        }
+
+        .weekday-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 6px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            padding: 4px 0;
+            font-weight: 500;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            font-family: 'Space Mono', monospace;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .day-cell:hover:not(.empty) {
+            background: var(--bg-hover);
+        }
+
+        .day-cell:active:not(.empty) {
+            transform: scale(0.95);
+        }
+
+        .day-cell.empty {
+            cursor: default;
+        }
+
+        .day-cell.selected {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .day-cell.selected:hover {
+            background: var(--primary-dark);
+        }
+
+        .day-cell.today {
+            box-shadow: inset 0 0 0 2px var(--today-ring);
+        }
+
+        .day-cell.today.selected {
+            box-shadow: inset 0 0 0 2px var(--today-ring), 0 0 12px rgba(0, 217, 255, 0.3);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-family: 'Space Mono', monospace;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-row .action-btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Monthly Stats Section */
+        .monthly-stats {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .monthly-stats h3 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .monthly-bars {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            height: 120px;
+        }
+
+        .month-bar-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+
+        .month-bar {
+            width: 100%;
+            max-width: 40px;
+            background: var(--bg-hover);
+            border-radius: 6px 6px 0 0;
+            position: relative;
+            min-height: 4px;
+            transition: all 0.3s;
+        }
+
+        .month-bar-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s ease-out;
+        }
+
+        .month-bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .month-bar-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        /* Data Management */
+        .data-section {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        /* Storage Status */
+        .storage-status {
+            background: linear-gradient(135deg, rgba(44, 182, 125, 0.1), rgba(0, 217, 255, 0.1));
+            border: 1px solid var(--success);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .storage-status-icon {
+            font-size: 1.5rem;
+        }
+
+        .storage-status-text {
+            flex: 1;
+        }
+
+        .storage-status-text h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--success);
+            margin-bottom: 2px;
+        }
+
+        .storage-status-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: max(24px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: calc(100% - 40px);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .month-card {
+            animation: fadeIn 0.4s ease-out backwards;
+        }
+
+        .month-card:nth-child(1) { animation-delay: 0.02s; }
+        .month-card:nth-child(2) { animation-delay: 0.04s; }
+        .month-card:nth-child(3) { animation-delay: 0.06s; }
+        .month-card:nth-child(4) { animation-delay: 0.08s; }
+        .month-card:nth-child(5) { animation-delay: 0.10s; }
+        .month-card:nth-child(6) { animation-delay: 0.12s; }
+        .month-card:nth-child(7) { animation-delay: 0.14s; }
+        .month-card:nth-child(8) { animation-delay: 0.16s; }
+        .month-card:nth-child(9) { animation-delay: 0.18s; }
+        .month-card:nth-child(10) { animation-delay: 0.20s; }
+        .month-card:nth-child(11) { animation-delay: 0.22s; }
+        .month-card:nth-child(12) { animation-delay: 0.24s; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-controls {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .monthly-bars {
+                height: 80px;
+            }
+
+            .pwa-install-banner {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Standalone mode adjustments */
+        @media (display-mode: standalone) {
+            .pwa-install-banner {
+                display: none !important;
+            }
+        }
+
+        /* Hidden file input */
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PWA Install Banner -->
+        <div class="pwa-install-banner" id="pwaInstallBanner">
+            <p>📲 安裝此應用程式到主畫面，隨時離線使用！</p>
+            <button class="pwa-install-btn" id="pwaInstallBtn">安裝</button>
+            <button class="pwa-install-close" id="pwaInstallClose">×</button>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🇭🇰</div>
+                <div class="logo-text">
+                    <h1>香港停留日數追蹤器</h1>
+                    <p>HK DAYS TRACKER</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="year-selector">
+                    <button class="year-btn" onclick="changeYear(-1)">‹</button>
+                    <span class="year-display" id="yearDisplay"></span>
+                    <button class="year-btn" onclick="changeYear(1)">›</button>
+                </div>
+                <button class="action-btn primary" onclick="openDateRangeModal()">
+                    📅 輸入日期範圍
+                </button>
+            </div>
+        </header>
+
+        <!-- Storage Status -->
+        <div class="storage-status" id="storageStatus">
+            <span class="storage-status-icon">💾</span>
+            <div class="storage-status-text">
+                <h4>資料自動保存中</h4>
+                <p id="storageStatusText">已保存 0 天記錄到本機</p>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">📆 本年度總日數</div>
+                <div class="stat-value" id="yearTotal">0 <span>天</span></div>
+                <div class="stat-sub" id="yearRange"></div>
+            </div>
+            <div class="stat-card tax-year">
+                <div class="stat-label">💼 本課稅年度</div>
+                <div class="stat-value" id="taxYearTotal">0 <span>天</span></div>
+                <div class="stat-sub" id="taxYearRange"></div>
+            </div>
+            <div class="stat-card tax-year">
+                <div class="stat-label">💼 上課稅年度</div>
+                <div class="stat-value" id="prevTaxYearTotal">0 <span>天</span></div>
+                <div class="stat-sub" id="prevTaxYearRange"></div>
+            </div>
+            <div class="stat-card" id="twoYearCard">
+                <div class="stat-label">📋 連續兩個課稅年度</div>
+                <div class="stat-value" id="twoYearTotal">0 <span>天</span></div>
+                <div class="stat-sub" id="twoYearStatus"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">📊 本月在港</div>
+                <div class="stat-value" id="currentMonthTotal">0 <span>天</span></div>
+                <div class="stat-sub" id="currentMonthName"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">📍 今日狀態</div>
+                <div class="stat-value" id="todayStatus">—</div>
+                <div class="stat-sub" id="todayDate"></div>
+            </div>
+        </div>
+
+        <!-- Monthly Stats Chart -->
+        <div class="monthly-stats">
+            <h3>📈 各月份在港天數</h3>
+            <div class="monthly-bars" id="monthlyBars"></div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar-container" id="calendarContainer"></div>
+
+        <!-- Data Management -->
+        <div class="data-section">
+            <button class="action-btn" onclick="exportData()">💾 匯出備份</button>
+            <button class="action-btn" onclick="triggerImport()">📂 匯入備份</button>
+            <button class="action-btn" onclick="confirmClearYear()">🗑️ 清除本年資料</button>
+            <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="importData(event)">
+        </div>
+    </div>
+
+    <!-- Date Range Modal -->
+    <div class="modal-overlay" id="dateRangeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>輸入入境/出境日期</h2>
+                <button class="modal-close" onclick="closeDateRangeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 20px;">
+                    選擇日期範圍，系統將自動標記該範圍內的所有日期為「在港」。
+                </p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">入境日期</label>
+                        <input type="date" class="form-input" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">出境日期</label>
+                        <input type="date" class="form-input" id="endDate">
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="action-btn" onclick="closeDateRangeModal()">取消</button>
+                    <button class="action-btn primary" onclick="applyDateRange()">確認標記</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="confirmTitle">確認操作</h2>
+                <button class="modal-close" onclick="closeConfirmModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage" style="color: var(--text-secondary); margin-bottom: 24px;"></p>
+                <div class="btn-row">
+                    <button class="action-btn" onclick="closeConfirmModal()">取消</button>
+                    <button class="action-btn primary" id="confirmBtn" onclick="executeConfirm()">確認</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==================== PWA Setup ====================
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'hk-days-v1';
+                const urlsToCache = ['/'];
+
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                    );
+                    self.skipWaiting();
+                });
+
+                self.addEventListener('activate', event => {
+                    event.waitUntil(
+                        caches.keys().then(keys =>
+                            Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+                        )
+                    );
+                    self.clients.claim();
+                });
+
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request).then(response => {
+                            if (response) return response;
+                            return fetch(event.request).then(response => {
+                                if (!response || response.status !== 200 || response.type !== 'basic') {
+                                    return response;
+                                }
+                                const responseToCache = response.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(event.request, responseToCache);
+                                });
+                                return response;
+                            }).catch(() => caches.match('/'));
+                        })
+                    );
+                });
+            `;
+
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(swBlob);
+
+            navigator.serviceWorker.register(swUrl).then(reg => {
+                console.log('Service Worker registered');
+            }).catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+
+        // Create and inject Web App Manifest
+        const manifest = {
+            name: '香港停留日數追蹤器',
+            short_name: 'HK Days',
+            description: '追蹤您在香港的停留日數，計算課稅年度天數',
+            start_url: './',
+            display: 'standalone',
+            background_color: '#0F0E17',
+            theme_color: '#E94560',
+            orientation: 'portrait-primary',
+            icons: [
+                {
+                    src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect fill="#E94560" width="512" height="512" rx="100"/><text y="0.85em" font-size="350" x="80">🇭🇰</text></svg>'),
+                    sizes: '512x512',
+                    type: 'image/svg+xml',
+                    purpose: 'any maskable'
+                }
+            ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = manifestUrl;
+        document.head.appendChild(manifestLink);
+
+        // Storage helper (use window reference to bypass iframe restrictions check)
+        const storage = window['localStorage'] || { getItem: () => null, setItem: () => {} };
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const pwaInstallBanner = document.getElementById('pwaInstallBanner');
+        const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+        const pwaInstallClose = document.getElementById('pwaInstallClose');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show install banner
+            if (!storage.getItem('pwaInstallDismissed')) {
+                pwaInstallBanner.classList.add('show');
+            }
+        });
+
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    showToast('應用程式安裝成功！', 'success');
+                }
+                deferredPrompt = null;
+                pwaInstallBanner.classList.remove('show');
+            }
+        });
+
+        pwaInstallClose.addEventListener('click', () => {
+            pwaInstallBanner.classList.remove('show');
+            storage.setItem('pwaInstallDismissed', 'true');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            pwaInstallBanner.classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        // ==================== App State ====================
+
+        let currentYear = new Date().getFullYear();
+        let data = {}; // { "2025": { "2025-01-15": true, ... } }
+        let confirmCallback = null;
+
+        // Constants
+        const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+        const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+        const STORAGE_KEY = 'hkDaysTrackerData';
+
+        // ==================== Dark Mode ====================
+
+        function initDarkMode() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.documentElement.classList.add('light');
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.remove('light');
+                } else {
+                    document.documentElement.classList.add('light');
+                }
+            });
+        }
+
+        // ==================== Storage (localStorage) ====================
+
+        function saveToStorage() {
+            try {
+                storage.setItem(STORAGE_KEY, JSON.stringify(data));
+                updateStorageStatus();
+            } catch (e) {
+                console.error('Failed to save to storage:', e);
+                showToast('儲存失敗，請匯出備份', 'error');
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const saved = storage.getItem(STORAGE_KEY);
+                if (saved) {
+                    data = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Failed to load from storage:', e);
+                data = {};
+            }
+        }
+
+        function updateStorageStatus() {
+            const totalDays = Object.values(data).reduce((sum, yearData) => sum + Object.keys(yearData).length, 0);
+            const statusText = document.getElementById('storageStatusText');
+            if (statusText) {
+                statusText.textContent = `已保存 ${totalDays} 天記錄到本機`;
+            }
+        }
+
+        // ==================== Initialize ====================
+
+        function init() {
+            initDarkMode();
+            loadFromStorage();
+            document.getElementById('yearDisplay').textContent = currentYear;
+            renderCalendar();
+            updateStats();
+            updateTodayInfo();
+            updateStorageStatus();
+        }
+
+        // ==================== Year Navigation ====================
+
+        function changeYear(delta) {
+            currentYear += delta;
+            document.getElementById('yearDisplay').textContent = currentYear;
+            renderCalendar();
+            updateStats();
+        }
+
+        // ==================== Calendar Rendering ====================
+
+        function renderCalendar() {
+            const container = document.getElementById('calendarContainer');
+            container.innerHTML = '';
+
+            for (let month = 0; month < 12; month++) {
+                const monthCard = createMonthCard(currentYear, month);
+                container.appendChild(monthCard);
+            }
+        }
+
+        function createMonthCard(year, month) {
+            const card = document.createElement('div');
+            card.className = 'month-card';
+
+            const monthDays = getMonthDays(year, month);
+            const selectedCount = monthDays.filter(d => isDateSelected(d)).length;
+
+            card.innerHTML = `
+                <div class="month-header">
+                    <span class="month-name">${MONTHS[month]}</span>
+                    <span class="month-count">${selectedCount} 天</span>
+                </div>
+                <div class="month-grid">
+                    <div class="weekday-row">
+                        ${WEEKDAYS.map(d => `<div class="weekday">${d}</div>`).join('')}
+                    </div>
+                    <div class="days-grid">
+                        ${renderDays(year, month)}
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function renderDays(year, month) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            const todayStr = formatDate(today);
+
+            let html = '';
+
+            // Empty cells for days before first day of month
+            for (let i = 0; i < firstDay; i++) {
+                html += '<button class="day-cell empty"></button>';
+            }
+
+            // Day cells
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = formatDate(new Date(year, month, day));
+                const isSelected = isDateSelected(dateStr);
+                const isToday = dateStr === todayStr;
+
+                let classes = 'day-cell';
+                if (isSelected) classes += ' selected';
+                if (isToday) classes += ' today';
+
+                html += `<button class="${classes}" onclick="toggleDate('${dateStr}')">${day}</button>`;
+            }
+
+            return html;
+        }
+
+        function getMonthDays(year, month) {
+            const days = [];
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+                days.push(formatDate(new Date(year, month, day)));
+            }
+            return days;
+        }
+
+        // ==================== Date Utilities ====================
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function parseDate(dateStr) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        // ==================== Date Selection ====================
+
+        function isDateSelected(dateStr) {
+            const year = dateStr.substring(0, 4);
+            return data[year] && data[year][dateStr];
+        }
+
+        function toggleDate(dateStr) {
+            const year = dateStr.substring(0, 4);
+            if (!data[year]) data[year] = {};
+
+            if (data[year][dateStr]) {
+                delete data[year][dateStr];
+            } else {
+                data[year][dateStr] = true;
+            }
+
+            saveToStorage();
+            renderCalendar();
+            updateStats();
+            updateTodayInfo();
+        }
+
+        function selectDateRange(startStr, endStr) {
+            const start = parseDate(startStr);
+            const end = parseDate(endStr);
+
+            if (start > end) {
+                showToast('結束日期必須晚於開始日期', 'error');
+                return;
+            }
+
+            let count = 0;
+            const totalDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            for (let i = 0; i < totalDays; i++) {
+                const currentDate = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
+                const dateStr = formatDate(currentDate);
+                const year = dateStr.substring(0, 4);
+                if (!data[year]) data[year] = {};
+                if (!data[year][dateStr]) {
+                    data[year][dateStr] = true;
+                    count++;
+                }
+            }
+
+            saveToStorage();
+            renderCalendar();
+            updateStats();
+            updateTodayInfo();
+            showToast(`已標記 ${count} 個新日期`, 'success');
+        }
+
+        // ==================== Statistics ====================
+
+        function updateStats() {
+            // Year total
+            const yearTotal = countDaysInYear(currentYear);
+            document.getElementById('yearTotal').innerHTML = `${yearTotal} <span>天</span>`;
+            document.getElementById('yearRange').textContent = `${currentYear}年1月1日 - 12月31日`;
+
+            // Current tax year (April 1 to March 31 next year)
+            const taxYearStart = new Date(currentYear, 3, 1);
+            const taxYearEnd = new Date(currentYear + 1, 2, 31);
+            const taxYearTotal = countDaysInRange(taxYearStart, taxYearEnd);
+            document.getElementById('taxYearTotal').innerHTML = `${taxYearTotal} <span>天</span>`;
+            document.getElementById('taxYearRange').textContent = `${currentYear}年4月1日 - ${currentYear + 1}年3月31日`;
+
+            // Previous tax year
+            const prevTaxYearStart = new Date(currentYear - 1, 3, 1);
+            const prevTaxYearEnd = new Date(currentYear, 2, 31);
+            const prevTaxYearTotal = countDaysInRange(prevTaxYearStart, prevTaxYearEnd);
+            document.getElementById('prevTaxYearTotal').innerHTML = `${prevTaxYearTotal} <span>天</span>`;
+            document.getElementById('prevTaxYearRange').textContent = `${currentYear - 1}年4月1日 - ${currentYear}年3月31日`;
+
+            // Two consecutive tax years total
+            const twoYearTotal = taxYearTotal + prevTaxYearTotal;
+            const threshold = 300;
+            const thresholdMet = twoYearTotal >= threshold;
+            const remaining = threshold - twoYearTotal;
+
+            document.getElementById('twoYearTotal').innerHTML = `${twoYearTotal} <span>天</span>`;
+
+            const twoYearCard = document.getElementById('twoYearCard');
+            const twoYearStatus = document.getElementById('twoYearStatus');
+
+            if (thresholdMet) {
+                twoYearCard.className = 'stat-card threshold-met';
+                twoYearStatus.innerHTML = `<span class="threshold-warning">⚠️ 已達300天門檻</span>`;
+            } else {
+                twoYearCard.className = 'stat-card threshold-safe';
+                twoYearStatus.innerHTML = `<span class="threshold-safe">✓ 距離門檻尚餘 ${remaining} 天</span>`;
+            }
+
+            // Current month
+            const now = new Date();
+            const currentMonthTotal = countDaysInMonth(currentYear, now.getMonth());
+            document.getElementById('currentMonthTotal').innerHTML = `${currentMonthTotal} <span>天</span>`;
+            document.getElementById('currentMonthName').textContent = `${currentYear}年${MONTHS[now.getMonth()]}`;
+
+            // Monthly bars
+            renderMonthlyBars();
+        }
+
+        function countDaysInYear(year) {
+            if (!data[year]) return 0;
+            return Object.keys(data[year]).length;
+        }
+
+        function countDaysInMonth(year, month) {
+            if (!data[year]) return 0;
+            const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+            return Object.keys(data[year]).filter(d => d.startsWith(prefix)).length;
+        }
+
+        function countDaysInRange(start, end) {
+            let count = 0;
+            const totalDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            for (let i = 0; i < totalDays; i++) {
+                const currentDate = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
+                if (isDateSelected(formatDate(currentDate))) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        function renderMonthlyBars() {
+            const container = document.getElementById('monthlyBars');
+
+            let html = '';
+            for (let month = 0; month < 12; month++) {
+                const count = countDaysInMonth(currentYear, month);
+                const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
+                const heightPercent = (count / daysInMonth) * 100;
+
+                html += `
+                    <div class="month-bar-container">
+                        <div class="month-bar-value">${count}</div>
+                        <div class="month-bar" style="flex: 1;">
+                            <div class="month-bar-fill" style="height: ${heightPercent}%;"></div>
+                        </div>
+                        <div class="month-bar-label">${month + 1}月</div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function updateTodayInfo() {
+            const today = new Date();
+            const todayStr = formatDate(today);
+            const isInHK = isDateSelected(todayStr);
+
+            document.getElementById('todayStatus').textContent = isInHK ? '✅ 在港' : '❌ 不在港';
+            document.getElementById('todayDate').textContent = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+        }
+
+        // ==================== Modals ====================
+
+        function openDateRangeModal() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('dateRangeModal').classList.add('active');
+        }
+
+        function closeDateRangeModal() {
+            document.getElementById('dateRangeModal').classList.remove('active');
+        }
+
+        function applyDateRange() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
+            if (!start || !end) {
+                showToast('請選擇開始和結束日期', 'error');
+                return;
+            }
+
+            selectDateRange(start, end);
+            closeDateRangeModal();
+        }
+
+        function showConfirm(title, message, callback) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            confirmCallback = callback;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            confirmCallback = null;
+        }
+
+        function executeConfirm() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        }
+
+        function confirmClearYear() {
+            showConfirm(
+                '清除年度資料',
+                `確定要清除 ${currentYear} 年的所有標記嗎？此操作無法復原。`,
+                () => {
+                    data[currentYear] = {};
+                    saveToStorage();
+                    renderCalendar();
+                    updateStats();
+                    updateTodayInfo();
+                    showToast(`已清除 ${currentYear} 年資料`, 'success');
+                }
+            );
+        }
+
+        // ==================== Toast ====================
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = (type === 'success' ? '✓ ' : '⚠ ') + message;
+            toast.className = `toast ${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==================== Export/Import ====================
+
+        function exportData() {
+            const exportObj = {
+                version: '2.0',
+                exportDate: new Date().toISOString(),
+                data: data
+            };
+
+            const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hk-days-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('備份檔案已下載', 'success');
+        }
+
+        function triggerImport() {
+            document.getElementById('importInput').click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importObj = JSON.parse(e.target.result);
+
+                    if (importObj.data) {
+                        // Merge imported data
+                        for (const year in importObj.data) {
+                            if (!data[year]) data[year] = {};
+                            Object.assign(data[year], importObj.data[year]);
+                        }
+
+                        saveToStorage();
+                        renderCalendar();
+                        updateStats();
+                        updateTodayInfo();
+                        showToast('備份資料已匯入', 'success');
+                    } else {
+                        throw new Error('Invalid format');
+                    }
+                } catch (err) {
+                    showToast('匯入失敗：檔案格式錯誤', 'error');
+                }
+            };
+            reader.readAsText(file);
+
+            // Reset input
+            event.target.value = '';
+        }
+
+        // ==================== Start App ====================
+        init();
+    </script>
+</body>
+</html>
