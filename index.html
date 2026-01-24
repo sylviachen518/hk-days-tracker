@@ -10,12 +10,12 @@
     <meta name="theme-color" content="#E94560">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="HK Days">
+    <meta name="apple-mobile-web-app-title" content="StayinHK">
     <meta name="mobile-web-app-capable" content="yes">
 
-    <!-- PWA Icons (使用 emoji 作為臨時圖標，部署時請替換為真實圖片) -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23E94560' width='100' height='100' rx='20'/><text y='.9em' font-size='80' x='10'>🇭🇰</text></svg>">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23E94560' width='100' height='100' rx='20'/><text y='.9em' font-size='80' x='10'>🇭🇰</text></svg>">
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200">
+    <link rel="icon" type="image/png" href="https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200">
 
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -157,12 +157,15 @@
         .logo-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .logo-text h1 {
@@ -683,6 +686,229 @@
             color: var(--text-secondary);
         }
 
+        /* Info Section */
+        .info-section {
+            margin-top: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .info-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(44, 182, 125, 0.1));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .info-header:hover {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(44, 182, 125, 0.15));
+        }
+
+        .info-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .info-toggle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .info-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .info-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .info-content.expanded {
+            max-height: 2000px;
+        }
+
+        .info-body {
+            padding: 20px;
+        }
+
+        .info-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .info-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .info-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .info-card-icon.residence {
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(255, 215, 0, 0.2));
+        }
+
+        .info-card-icon.tax {
+            background: linear-gradient(135deg, rgba(44, 182, 125, 0.2), rgba(0, 217, 255, 0.2));
+        }
+
+        .info-card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .info-card-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.6;
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-list li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .info-highlight {
+            display: inline-block;
+            background: rgba(233, 69, 96, 0.15);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .info-highlight.green {
+            background: rgba(44, 182, 125, 0.15);
+            color: var(--success);
+        }
+
+        .info-note {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .info-note strong {
+            color: var(--accent);
+        }
+
+        /* Disclaimer Section */
+        .disclaimer {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .disclaimer-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .disclaimer-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .disclaimer-text a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .disclaimer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .disclaimer-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--border);
+            margin: 16px auto;
+        }
+
+        .disclaimer-footer {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -792,7 +1018,7 @@
         <!-- Header -->
         <header class="header">
             <div class="logo">
-                <div class="logo-icon">🇭🇰</div>
+                <div class="logo-icon"><img src="https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200" alt="StayinHK Logo"></div>
                 <div class="logo-text">
                     <h1>香港停留日數追蹤器</h1>
                     <p>HK DAYS TRACKER</p>
@@ -869,6 +1095,99 @@
             <button class="action-btn" onclick="confirmClearYear()">🗑️ 清除本年資料</button>
             <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="importData(event)">
         </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <div class="info-header" onclick="toggleInfoSection()">
+                <div class="info-header-left">
+                    <span>📚</span>
+                    <h3>香港永居及稅務居民天數計算說明</h3>
+                </div>
+                <span class="info-toggle" id="infoToggle">▼</span>
+            </div>
+            <div class="info-content" id="infoContent">
+                <div class="info-body">
+                    <!-- Permanent Residency -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon residence">🏠</div>
+                            <div>
+                                <div class="info-card-title">香港永久性居民資格</div>
+                                <div class="info-card-subtitle">Permanent Resident Status</div>
+                            </div>
+                        </div>
+                        <ul class="info-list">
+                            <li>根據《基本法》第24條，非中國籍人士需在香港<span class="info-highlight">通常居住連續7年</span>以上，方可申請成為香港永久性居民。</li>
+                            <li>「通常居住」指以香港為生活中心，包括在港有固定居所、工作或家庭聯繫等。短暫離港（如旅遊、出差）一般不影響連續性。</li>
+                            <li>中國籍人士在香港<span class="info-highlight">通常居住連續7年</span>以上，且在香港以外無居留權，即可成為永久性居民。</li>
+                            <li>在香港出生的中國籍人士，無論父母是否為永久性居民，均自動獲得永久性居民身份。</li>
+                            <li>持有永久性居民身份證後，如離開香港超過<span class="info-highlight">36個月</span>，有可能喪失居留權（需視乎個案情況）。</li>
+                        </ul>
+                        <div class="info-note">
+                            <strong>💡 提示：</strong>「連續7年」的計算以入境處的記錄為準。建議保留出入境記錄以備申請時使用。
+                        </div>
+                    </div>
+
+                    <!-- Tax Residency -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon tax">💰</div>
+                            <div>
+                                <div class="info-card-title">香港稅務居民身份</div>
+                                <div class="info-card-subtitle">Tax Resident Status</div>
+                            </div>
+                        </div>
+                        <ul class="info-list">
+                            <li>香港課稅年度為每年<span class="info-highlight green">4月1日至翌年3月31日</span>。</li>
+                            <li>根據《稅務條例》，符合以下<strong>任一</strong>條件，即被視為香港稅務居民：</li>
+                            <li>條件一：在某一課稅年度內，在香港逗留超過<span class="info-highlight">180天</span>。</li>
+                            <li>條件二：在<strong>連續兩個課稅年度</strong>內（其中一個為有關課稅年度），在香港逗留超過<span class="info-highlight">300天</span>。</li>
+                            <li>「逗留」包括在港的任何部分時間，即入境當日及離境當日均計算為在港一天。</li>
+                            <li>稅務居民需就其在香港產生或源自香港的收入繳納薪俸稅。</li>
+                        </ul>
+                        <div class="info-note">
+                            <strong>⚠️ 注意：</strong>本應用程式中的「連續兩個課稅年度」統計可協助您監察是否接近300天門檻。超過此門檻可能需要申報薪俸稅。
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon tax">📋</div>
+                            <div>
+                                <div class="info-card-title">日數計算方式</div>
+                                <div class="info-card-subtitle">How Days Are Counted</div>
+                            </div>
+                        </div>
+                        <ul class="info-list">
+                            <li><strong>入境日</strong>及<strong>離境日</strong>均計算為在港一天（即使只停留數小時）。</li>
+                            <li>同一天內多次出入境，只計算為<span class="info-highlight green">1天</span>。</li>
+                            <li>過境旅客如不通過香港入境管制站，則不計算為在港日數。</li>
+                            <li>建議記錄每次入境及出境日期，以便準確計算在港總日數。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <div class="disclaimer-header">
+                <span>⚖️</span>
+                <span>免責聲明</span>
+            </div>
+            <p class="disclaimer-text">
+                本應用程式僅供個人追蹤在港日數之用，所顯示的稅務相關資訊（包括課稅年度計算及300天門檻提示）僅供參考，不構成任何專業稅務、法律或財務建議。用戶應自行核實所有數據的準確性。
+            </p>
+            <div class="disclaimer-divider"></div>
+            <p class="disclaimer-text">
+                有關香港稅務居民身份及相關稅務責任，請諮詢專業稅務顧問或參閱<a href="https://www.ird.gov.hk" target="_blank" rel="noopener noreferrer">香港稅務局官方網站</a>。本應用程式開發者對因使用本應用程式而產生的任何損失概不負責。
+            </p>
+            <div class="disclaimer-divider"></div>
+            <p class="disclaimer-footer">
+                © 2025 香港停留日數追蹤器 · 版本 2.0
+            </p>
+        </div>
     </div>
 
     <!-- Date Range Modal -->
@@ -923,10 +1242,10 @@
     <script>
         // ==================== PWA Setup ====================
 
-        // Register Service Worker
+        // Register Service Worker (UPDATED VERSION)
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'hk-days-v1';
+                const CACHE_NAME = 'hk-days-v2';
                 const urlsToCache = ['/'];
 
                 self.addEventListener('install', event => {
@@ -968,16 +1287,16 @@
             const swUrl = URL.createObjectURL(swBlob);
 
             navigator.serviceWorker.register(swUrl).then(reg => {
-                console.log('Service Worker registered');
+                console.log('Service Worker registered (v2)');
             }).catch(err => {
                 console.log('Service Worker registration failed:', err);
             });
         }
 
-        // Create and inject Web App Manifest
+        // Create and inject Web App Manifest (UPDATED)
         const manifest = {
             name: '香港停留日數追蹤器',
-            short_name: 'HK Days',
+            short_name: 'StayinHK',
             description: '追蹤您在香港的停留日數，計算課稅年度天數',
             start_url: './',
             display: 'standalone',
@@ -986,9 +1305,15 @@
             orientation: 'portrait-primary',
             icons: [
                 {
-                    src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect fill="#E94560" width="512" height="512" rx="100"/><text y="0.85em" font-size="350" x="80">🇭🇰</text></svg>'),
+                    src: 'https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200',
+                    sizes: '192x192',
+                    type: 'image/png',
+                    purpose: 'any maskable'
+                },
+                {
+                    src: 'https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200',
                     sizes: '512x512',
-                    type: 'image/svg+xml',
+                    type: 'image/png',
                     purpose: 'any maskable'
                 }
             ]
@@ -1050,7 +1375,7 @@
         // Constants
         const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
         const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-        const STORAGE_KEY = 'hkDaysTrackerData';
+        const STORAGE_KEY = 'hkDaysTrackerData'; // KEEP THE SAME KEY FOR DATA COMPATIBILITY
 
         // ==================== Dark Mode ====================
 
@@ -1496,6 +1821,15 @@
 
             // Reset input
             event.target.value = '';
+        }
+
+        // ==================== Toggle Info Section ====================
+
+        function toggleInfoSection() {
+            const content = document.getElementById('infoContent');
+            const toggle = document.getElementById('infoToggle');
+            content.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
         }
 
         // ==================== Start App ====================
