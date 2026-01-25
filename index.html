@@ -2,20 +2,21 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>香港停留日數追蹤器</title>
 
     <!-- PWA Meta Tags -->
-    <meta name="description" content="追蹤您在香港的停留日數，計算課稅年度天數">
-    <meta name="theme-color" content="#E94560">
+    <meta name="application-name" content="HK Days Tracker">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="StayinHK">
+    <meta name="apple-mobile-web-app-title" content="HK Days">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0F0E17" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#F8F7F4" media="(prefers-color-scheme: light)">
+    <meta name="description" content="追蹤您在香港的停留日數，計算稅務居民身份及永久居民資格">
 
-    <!-- PWA Icons -->
-    <link rel="apple-touch-icon" href="https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200">
-    <link rel="icon" type="image/png" href="https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200">
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E94560' width='512' height='512' rx='90'/><text x='256' y='340' font-size='280' text-anchor='middle' fill='white'>港</text></svg>">
 
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -60,9 +61,7 @@
             background: var(--bg-dark);
             color: var(--text-primary);
             min-height: 100vh;
-            min-height: 100dvh;
             line-height: 1.6;
-            padding-bottom: env(safe-area-inset-bottom);
         }
 
         /* Background Pattern */
@@ -85,57 +84,6 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
-            padding-top: max(20px, env(safe-area-inset-top));
-        }
-
-        /* PWA Install Banner */
-        .pwa-install-banner {
-            display: none;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .pwa-install-banner.show {
-            display: flex;
-        }
-
-        .pwa-install-banner p {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .pwa-install-btn {
-            background: white;
-            color: var(--primary);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            font-family: inherit;
-        }
-
-        .pwa-install-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px;
-            opacity: 0.8;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Header */
@@ -432,15 +380,10 @@
             background: transparent;
             border: none;
             color: var(--text-primary);
-            -webkit-tap-highlight-color: transparent;
         }
 
         .day-cell:hover:not(.empty) {
             background: var(--bg-hover);
-        }
-
-        .day-cell:active:not(.empty) {
-            transform: scale(0.95);
         }
 
         .day-cell.empty {
@@ -654,36 +597,649 @@
             border-radius: 16px;
         }
 
-        /* Storage Status */
-        .storage-status {
+        /* Data Code Section */
+        .data-code-section {
             background: linear-gradient(135deg, rgba(44, 182, 125, 0.1), rgba(0, 217, 255, 0.1));
             border: 1px solid var(--success);
             border-radius: 16px;
-            padding: 16px 20px;
+            padding: 20px;
             margin-bottom: 24px;
+        }
+
+        .data-code-header {
             display: flex;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .data-code-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .data-code-description {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .data-code-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .tab-btn.active {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-box {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .code-display {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-input {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 16px;
+            color: var(--text-primary);
+            min-height: 44px;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: var(--success);
+        }
+
+        .code-btn {
+            background: var(--success);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .code-btn:hover {
+            background: #249963;
+            transform: translateY(-1px);
+        }
+
+        .code-btn:active {
+            transform: translateY(0);
+        }
+
+        .code-btn.restore {
+            background: var(--primary);
+        }
+
+        .code-btn.restore:hover {
+            background: var(--primary-dark);
+        }
+
+        .data-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Tax Year Indicator */
+        .tax-year-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(44, 182, 125, 0.1);
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .month-card {
+            animation: fadeIn 0.4s ease-out backwards;
+        }
+
+        .month-card:nth-child(1) { animation-delay: 0.02s; }
+        .month-card:nth-child(2) { animation-delay: 0.04s; }
+        .month-card:nth-child(3) { animation-delay: 0.06s; }
+        .month-card:nth-child(4) { animation-delay: 0.08s; }
+        .month-card:nth-child(5) { animation-delay: 0.10s; }
+        .month-card:nth-child(6) { animation-delay: 0.12s; }
+        .month-card:nth-child(7) { animation-delay: 0.14s; }
+        .month-card:nth-child(8) { animation-delay: 0.16s; }
+        .month-card:nth-child(9) { animation-delay: 0.18s; }
+        .month-card:nth-child(10) { animation-delay: 0.20s; }
+        .month-card:nth-child(11) { animation-delay: 0.22s; }
+        .month-card:nth-child(12) { animation-delay: 0.24s; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-controls {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .monthly-bars {
+                height: 80px;
+            }
+        }
+
+        /* Hidden file input */
+        .hidden-input {
+            display: none;
+        }
+
+        /* Disclaimer Section */
+        .disclaimer {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .disclaimer-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .disclaimer-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .disclaimer-text a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .disclaimer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .disclaimer-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--border);
+            margin: 16px auto;
+        }
+
+        .disclaimer-footer {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* Auto Location Section */
+        .auto-location-section {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(233, 69, 96, 0.08));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .auto-location-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
             gap: 12px;
         }
 
-        .storage-status-icon {
-            font-size: 1.5rem;
+        .auto-location-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .storage-status-text {
-            flex: 1;
-        }
-
-        .storage-status-text h4 {
-            font-size: 0.9rem;
+        .auto-location-title h3 {
+            font-size: 1rem;
             font-weight: 600;
-            color: var(--success);
-            margin-bottom: 2px;
+            color: var(--text-primary);
         }
 
-        .storage-status-text p {
+        .auto-location-title span {
+            font-size: 1.2rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 56px;
+            height: 30px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-hover);
+            border: 2px solid var(--border);
+            transition: 0.3s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 2px;
+            bottom: 2px;
+            background: var(--text-muted);
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            background: white;
+        }
+
+        .toggle-switch input:focus + .toggle-slider {
+            box-shadow: 0 0 0 3px rgba(44, 182, 125, 0.3);
+        }
+
+        .location-status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .location-info.in-hk {
+            border-color: var(--success);
+            background: rgba(44, 182, 125, 0.1);
+        }
+
+        .location-info.outside-hk {
+            border-color: var(--text-muted);
+        }
+
+        .location-info.checking {
+            border-color: var(--today-ring);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .location-info.error {
+            border-color: var(--primary);
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .location-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .location-dot.in-hk {
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .location-dot.checking {
+            background: var(--today-ring);
+            animation: pulse 1s infinite;
+        }
+
+        .location-dot.error {
+            background: var(--primary);
+        }
+
+        .location-description {
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .location-last-check {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .location-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .location-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--today-ring);
+        }
+
+        .location-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* PWA Install Banner */
+        .pwa-install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(233, 69, 96, 0.1) 100%);
+            border-top: 1px solid var(--border);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .pwa-install-banner.show {
+            transform: translateY(0);
+        }
+
+        .pwa-install-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pwa-install-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .pwa-install-text h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+        }
+
+        .pwa-install-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .pwa-install-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .pwa-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .pwa-btn.install {
+            background: var(--primary);
+            color: white;
+        }
+
+        .pwa-btn.install:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .pwa-btn.dismiss {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .pwa-btn.dismiss:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* PWA Installed Indicator */
+        .pwa-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(44, 182, 125, 0.15);
+            border: 1px solid var(--success);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .pwa-status.hidden {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .pwa-install-banner {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 14px 16px;
+            }
+
+            .pwa-install-actions {
+                justify-content: stretch;
+            }
+
+            .pwa-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
+
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateY(-100%);
+            transition: transform 0.3s;
+        }
+
+        .offline-indicator.show {
+            transform: translateY(0);
         }
 
         /* Info Section */
@@ -855,173 +1411,17 @@
         .info-note strong {
             color: var(--accent);
         }
-
-        /* Disclaimer Section */
-        .disclaimer {
-            margin-top: 24px;
-            padding: 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .disclaimer-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .disclaimer-text {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.7;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .disclaimer-text a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .disclaimer-text a:hover {
-            text-decoration: underline;
-        }
-
-        .disclaimer-divider {
-            width: 60px;
-            height: 1px;
-            background: var(--border);
-            margin: 16px auto;
-        }
-
-        .disclaimer-footer {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            opacity: 0.7;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: max(24px, env(safe-area-inset-bottom));
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 14px 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            z-index: 2000;
-            opacity: 0;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            max-width: calc(100% - 40px);
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error {
-            border-left: 4px solid var(--primary);
-        }
-
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .month-card {
-            animation: fadeIn 0.4s ease-out backwards;
-        }
-
-        .month-card:nth-child(1) { animation-delay: 0.02s; }
-        .month-card:nth-child(2) { animation-delay: 0.04s; }
-        .month-card:nth-child(3) { animation-delay: 0.06s; }
-        .month-card:nth-child(4) { animation-delay: 0.08s; }
-        .month-card:nth-child(5) { animation-delay: 0.10s; }
-        .month-card:nth-child(6) { animation-delay: 0.12s; }
-        .month-card:nth-child(7) { animation-delay: 0.14s; }
-        .month-card:nth-child(8) { animation-delay: 0.16s; }
-        .month-card:nth-child(9) { animation-delay: 0.18s; }
-        .month-card:nth-child(10) { animation-delay: 0.20s; }
-        .month-card:nth-child(11) { animation-delay: 0.22s; }
-        .month-card:nth-child(12) { animation-delay: 0.24s; }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .header-controls {
-                justify-content: center;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .monthly-bars {
-                height: 80px;
-            }
-
-            .pwa-install-banner {
-                flex-wrap: wrap;
-            }
-        }
-
-        /* Standalone mode adjustments */
-        @media (display-mode: standalone) {
-            .pwa-install-banner {
-                display: none !important;
-            }
-        }
-
-        /* Hidden file input */
-        .hidden-input {
-            display: none;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- PWA Install Banner -->
-        <div class="pwa-install-banner" id="pwaInstallBanner">
-            <p>📲 安裝此應用程式到主畫面，隨時離線使用！</p>
-            <button class="pwa-install-btn" id="pwaInstallBtn">安裝</button>
-            <button class="pwa-install-close" id="pwaInstallClose">×</button>
-        </div>
-
         <!-- Header -->
         <header class="header">
             <div class="logo">
                 <div class="logo-icon"><img src="https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200" alt="StayinHK Logo"></div>
                 <div class="logo-text">
                     <h1>香港停留日數追蹤器</h1>
-                    <p>HK DAYS TRACKER</p>
+                    <p>HK DAYS TRACKER <span class="pwa-status hidden" id="pwaStatus">📲 已安裝</span></p>
                 </div>
             </div>
             <div class="header-controls">
@@ -1035,15 +1435,6 @@
                 </button>
             </div>
         </header>
-
-        <!-- Storage Status -->
-        <div class="storage-status" id="storageStatus">
-            <span class="storage-status-icon">💾</span>
-            <div class="storage-status-text">
-                <h4>資料自動保存中</h4>
-                <p id="storageStatusText">已保存 0 天記錄到本機</p>
-            </div>
-        </div>
 
         <!-- Stats -->
         <div class="stats-grid">
@@ -1079,6 +1470,34 @@
             </div>
         </div>
 
+        <!-- Auto Location Section -->
+        <div class="auto-location-section">
+            <div class="auto-location-header">
+                <div class="auto-location-title">
+                    <span>📍</span>
+                    <h3>自動定位打卡</h3>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoLocationToggle" onchange="toggleAutoLocation()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <p class="location-description">
+                啟用後，應用程式會自動偵測您是否在香港，並在當天自動標記為「在港」。
+                <br>定位資料僅在本機使用，不會上傳到任何伺服器。
+            </p>
+            <div class="location-status">
+                <div class="location-info" id="locationInfo">
+                    <span class="location-dot" id="locationDot"></span>
+                    <span id="locationText">尚未啟用定位</span>
+                </div>
+                <button class="location-btn" id="manualCheckBtn" onclick="manualLocationCheck()" disabled>
+                    🔄 手動檢測
+                </button>
+            </div>
+            <div class="location-last-check" id="lastCheckTime"></div>
+        </div>
+
         <!-- Monthly Stats Chart -->
         <div class="monthly-stats">
             <h3>📈 各月份在港天數</h3>
@@ -1088,10 +1507,45 @@
         <!-- Calendar -->
         <div class="calendar-container" id="calendarContainer"></div>
 
+        <!-- Data Code Section -->
+        <div class="data-code-section">
+            <div class="data-code-header">
+                <span>🔐</span>
+                <h3>資料備份與恢復</h3>
+            </div>
+            <p class="data-code-description">
+                複製數據代碼保存到安全的地方（如筆記應用）。下次打開時貼上代碼即可恢復資料。<br>
+                <strong>注意：</strong>只有擁有代碼的人才能恢復你的資料。
+            </p>
+
+            <div class="data-code-tabs">
+                <button class="tab-btn active" onclick="switchTab('export')">📤 匯出代碼</button>
+                <button class="tab-btn" onclick="switchTab('import')">📥 恢復資料</button>
+            </div>
+
+            <div id="exportTab" class="tab-content active">
+                <div class="code-box">
+                    <div class="code-display" id="dataCode">（尚無資料）</div>
+                    <button class="code-btn" onclick="copyCode()">📋 複製代碼</button>
+                </div>
+                <div class="data-status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">已編碼 0 天記錄</span>
+                </div>
+            </div>
+
+            <div id="importTab" class="tab-content">
+                <div class="code-box">
+                    <input type="text" class="code-input" id="restoreInput" placeholder="在此貼上數據代碼...">
+                    <button class="code-btn restore" onclick="restoreFromCode()">🔄 恢復</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Data Management -->
         <div class="data-section">
-            <button class="action-btn" onclick="exportData()">💾 匯出備份</button>
-            <button class="action-btn" onclick="triggerImport()">📂 匯入備份</button>
+            <button class="action-btn" onclick="exportData()">💾 匯出 JSON</button>
+            <button class="action-btn" onclick="triggerImport()">📂 匯入 JSON</button>
             <button class="action-btn" onclick="confirmClearYear()">🗑️ 清除本年資料</button>
             <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="importData(event)">
         </div>
@@ -1185,7 +1639,7 @@
             </p>
             <div class="disclaimer-divider"></div>
             <p class="disclaimer-footer">
-                © 2025 香港停留日數追蹤器 · 版本 2.0
+                © 2025 香港停留日數追蹤器 · 版本 1.0
             </p>
         </div>
     </div>
@@ -1239,146 +1693,53 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="pwaInstallBanner">
+        <div class="pwa-install-content">
+            <div class="pwa-install-icon">📱</div>
+            <div class="pwa-install-text">
+                <h4>安裝到主畫面</h4>
+                <p>像原生 App 一樣使用，支援離線存取</p>
+            </div>
+        </div>
+        <div class="pwa-install-actions">
+            <button class="pwa-btn dismiss" onclick="dismissPWABanner()">稍後</button>
+            <button class="pwa-btn install" onclick="installPWA()">安裝</button>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        📴 您目前處於離線狀態
+    </div>
+
     <script>
-        // ==================== PWA Setup ====================
-
-        // Register Service Worker (UPDATED VERSION)
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                const CACHE_NAME = 'hk-days-v2';
-                const urlsToCache = ['/'];
-
-                self.addEventListener('install', event => {
-                    event.waitUntil(
-                        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-                    );
-                    self.skipWaiting();
-                });
-
-                self.addEventListener('activate', event => {
-                    event.waitUntil(
-                        caches.keys().then(keys =>
-                            Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
-                        )
-                    );
-                    self.clients.claim();
-                });
-
-                self.addEventListener('fetch', event => {
-                    event.respondWith(
-                        caches.match(event.request).then(response => {
-                            if (response) return response;
-                            return fetch(event.request).then(response => {
-                                if (!response || response.status !== 200 || response.type !== 'basic') {
-                                    return response;
-                                }
-                                const responseToCache = response.clone();
-                                caches.open(CACHE_NAME).then(cache => {
-                                    cache.put(event.request, responseToCache);
-                                });
-                                return response;
-                            }).catch(() => caches.match('/'));
-                        })
-                    );
-                });
-            `;
-
-            const swBlob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(swBlob);
-
-            navigator.serviceWorker.register(swUrl).then(reg => {
-                console.log('Service Worker registered (v2)');
-            }).catch(err => {
-                console.log('Service Worker registration failed:', err);
-            });
-        }
-
-        // Create and inject Web App Manifest (UPDATED)
-        const manifest = {
-            name: '香港停留日數追蹤器',
-            short_name: 'StayinHK',
-            description: '追蹤您在香港的停留日數，計算課稅年度天數',
-            start_url: './',
-            display: 'standalone',
-            background_color: '#0F0E17',
-            theme_color: '#E94560',
-            orientation: 'portrait-primary',
-            icons: [
-                {
-                    src: 'https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200',
-                    sizes: '192x192',
-                    type: 'image/png',
-                    purpose: 'any maskable'
-                },
-                {
-                    src: 'https://pfst.cf2.poecdn.net/base/image/d9231f2951f92af0afcb91d7dbe0a533832f2b71979e1b40b271cbde8d6966af?w=200&h=200',
-                    sizes: '512x512',
-                    type: 'image/png',
-                    purpose: 'any maskable'
-                }
-            ]
-        };
-
-        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        const manifestUrl = URL.createObjectURL(manifestBlob);
-        const manifestLink = document.createElement('link');
-        manifestLink.rel = 'manifest';
-        manifestLink.href = manifestUrl;
-        document.head.appendChild(manifestLink);
-
-        // Storage helper (use window reference to bypass iframe restrictions check)
-        const storage = window['localStorage'] || { getItem: () => null, setItem: () => {} };
-
-        // PWA Install Prompt
-        let deferredPrompt;
-        const pwaInstallBanner = document.getElementById('pwaInstallBanner');
-        const pwaInstallBtn = document.getElementById('pwaInstallBtn');
-        const pwaInstallClose = document.getElementById('pwaInstallClose');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show install banner
-            if (!storage.getItem('pwaInstallDismissed')) {
-                pwaInstallBanner.classList.add('show');
-            }
-        });
-
-        pwaInstallBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    showToast('應用程式安裝成功！', 'success');
-                }
-                deferredPrompt = null;
-                pwaInstallBanner.classList.remove('show');
-            }
-        });
-
-        pwaInstallClose.addEventListener('click', () => {
-            pwaInstallBanner.classList.remove('show');
-            storage.setItem('pwaInstallDismissed', 'true');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            pwaInstallBanner.classList.remove('show');
-            deferredPrompt = null;
-        });
-
-        // ==================== App State ====================
-
+        // State
         let currentYear = new Date().getFullYear();
         let data = {}; // { "2025": { "2025-01-15": true, ... } }
         let confirmCallback = null;
+        let hasUnsavedChanges = false;
+        let currentDataCode = '';
+        let autoLocationEnabled = false;
+        let locationCheckInterval = null;
+        let lastLocationCheck = null;
+        let deferredPrompt = null;
+        let isPWAInstalled = false;
+        let pwaBannerDismissed = false;
 
         // Constants
         const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
         const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-        const STORAGE_KEY = 'hkDaysTrackerData'; // KEEP THE SAME KEY FOR DATA COMPATIBILITY
 
-        // ==================== Dark Mode ====================
+        // Hong Kong bounding box (approximate)
+        const HK_BOUNDS = {
+            minLat: 22.15,
+            maxLat: 22.56,
+            minLng: 113.82,
+            maxLng: 114.45
+        };
 
+        // Dark mode detection
         function initDarkMode() {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
                 document.documentElement.classList.add('light');
@@ -1392,61 +1753,175 @@
             });
         }
 
-        // ==================== Storage (localStorage) ====================
-
-        function saveToStorage() {
+        // Data Encoding/Decoding
+        function encodeData(obj) {
             try {
-                storage.setItem(STORAGE_KEY, JSON.stringify(data));
-                updateStorageStatus();
+                const jsonStr = JSON.stringify(obj);
+                // Use base64 encoding with URL-safe characters
+                const encoded = btoa(unescape(encodeURIComponent(jsonStr)))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/, '');
+                return encoded;
             } catch (e) {
-                console.error('Failed to save to storage:', e);
-                showToast('儲存失敗，請匯出備份', 'error');
+                console.error('Encode error:', e);
+                return '';
             }
         }
 
-        function loadFromStorage() {
+        function decodeData(str) {
             try {
-                const saved = storage.getItem(STORAGE_KEY);
-                if (saved) {
-                    data = JSON.parse(saved);
+                if (!str) return null;
+                // Restore base64 padding and characters
+                let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+                while (base64.length % 4) base64 += '=';
+                const jsonStr = decodeURIComponent(escape(atob(base64)));
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                console.error('Decode error:', e);
+                return null;
+            }
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+
+            if (tab === 'export') {
+                tabs[0].classList.add('active');
+                document.getElementById('exportTab').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('importTab').classList.add('active');
+            }
+        }
+
+        // Update displayed data code
+        function updateDataCode() {
+            const codeEl = document.getElementById('dataCode');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            const hasData = Object.keys(data).some(year => Object.keys(data[year]).length > 0);
+
+            if (hasData) {
+                currentDataCode = encodeData(data);
+                // Show truncated version for display
+                if (currentDataCode.length > 50) {
+                    codeEl.textContent = currentDataCode.substring(0, 40) + '...' + currentDataCode.substring(currentDataCode.length - 8);
+                } else {
+                    codeEl.textContent = currentDataCode;
                 }
-            } catch (e) {
-                console.error('Failed to load from storage:', e);
-                data = {};
+            } else {
+                currentDataCode = '';
+                codeEl.textContent = '（尚無資料）';
+            }
+
+            if (statusDot && statusText) {
+                const totalDays = Object.values(data).reduce((sum, yearData) => sum + Object.keys(yearData).length, 0);
+                statusDot.className = 'status-dot';
+                statusText.textContent = `已編碼 ${totalDays} 天記錄`;
             }
         }
 
-        function updateStorageStatus() {
-            const totalDays = Object.values(data).reduce((sum, yearData) => sum + Object.keys(yearData).length, 0);
-            const statusText = document.getElementById('storageStatusText');
-            if (statusText) {
-                statusText.textContent = `已保存 ${totalDays} 天記錄到本機`;
+        // Copy data code
+        function copyCode() {
+            if (!currentDataCode) {
+                showToast('沒有可複製的代碼', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentDataCode).then(() => {
+                showToast('代碼已複製！請保存到安全的地方', 'success');
+            }).catch(() => {
+                // Fallback: select the text
+                showCodeModal();
+            });
+        }
+
+        function showCodeModal() {
+            showConfirm(
+                '複製代碼',
+                '請手動複製以下代碼：\n\n' + currentDataCode,
+                () => {}
+            );
+        }
+
+        // Restore from data code
+        function restoreFromCode() {
+            const input = document.getElementById('restoreInput');
+            const code = input.value.trim();
+
+            if (!code) {
+                showToast('請先貼上數據代碼', 'error');
+                return;
+            }
+
+            const decoded = decodeData(code);
+            if (decoded && typeof decoded === 'object') {
+                // Merge with existing data
+                for (const year in decoded) {
+                    if (!data[year]) data[year] = {};
+                    Object.assign(data[year], decoded[year]);
+                }
+
+                const totalDays = Object.values(decoded).reduce((sum, yearData) => sum + Object.keys(yearData).length, 0);
+
+                saveToStorage();
+                renderCalendar();
+                updateStats();
+                updateTodayInfo();
+
+                input.value = '';
+                switchTab('export');
+                showToast(`✅ 已恢復 ${totalDays} 天的記錄`, 'success');
+            } else {
+                showToast('代碼格式錯誤，無法解析', 'error');
             }
         }
 
-        // ==================== Initialize ====================
-
+        // Initialize
         function init() {
             initDarkMode();
-            loadFromStorage();
             document.getElementById('yearDisplay').textContent = currentYear;
             renderCalendar();
             updateStats();
             updateTodayInfo();
-            updateStorageStatus();
+            updateDataCode();
+            showWelcomeMessage();
         }
 
-        // ==================== Year Navigation ====================
+        // Show welcome/reminder message
+        function showWelcomeMessage() {
+            setTimeout(() => {
+                showToast('💡 修改後請複製代碼保存', 'success');
+            }, 1500);
+        }
 
+        // Storage functions - updates data code display
+        function saveToStorage() {
+            hasUnsavedChanges = true;
+            updateDataCode();
+        }
+
+        function loadFromStorage() {
+            // No persistent storage available
+        }
+
+        // Year navigation
         function changeYear(delta) {
             currentYear += delta;
             document.getElementById('yearDisplay').textContent = currentYear;
             renderCalendar();
             updateStats();
+            saveToStorage(); // Save current year preference
         }
 
-        // ==================== Calendar Rendering ====================
-
+        // Render calendar
         function renderCalendar() {
             const container = document.getElementById('calendarContainer');
             container.innerHTML = '';
@@ -1520,8 +1995,7 @@
             return days;
         }
 
-        // ==================== Date Utilities ====================
-
+        // Date formatting
         function formatDate(date) {
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -1534,8 +2008,7 @@
             return new Date(y, m - 1, d);
         }
 
-        // ==================== Date Selection ====================
-
+        // Date selection
         function isDateSelected(dateStr) {
             const year = dateStr.substring(0, 4);
             return data[year] && data[year][dateStr];
@@ -1586,8 +2059,7 @@
             showToast(`已標記 ${count} 個新日期`, 'success');
         }
 
-        // ==================== Statistics ====================
-
+        // Statistics
         function updateStats() {
             // Year total
             const yearTotal = countDaysInYear(currentYear);
@@ -1595,20 +2067,20 @@
             document.getElementById('yearRange').textContent = `${currentYear}年1月1日 - 12月31日`;
 
             // Current tax year (April 1 to March 31 next year)
-            const taxYearStart = new Date(currentYear, 3, 1);
-            const taxYearEnd = new Date(currentYear + 1, 2, 31);
+            const taxYearStart = new Date(currentYear, 3, 1); // April 1
+            const taxYearEnd = new Date(currentYear + 1, 2, 31); // March 31 next year
             const taxYearTotal = countDaysInRange(taxYearStart, taxYearEnd);
             document.getElementById('taxYearTotal').innerHTML = `${taxYearTotal} <span>天</span>`;
             document.getElementById('taxYearRange').textContent = `${currentYear}年4月1日 - ${currentYear + 1}年3月31日`;
 
-            // Previous tax year
-            const prevTaxYearStart = new Date(currentYear - 1, 3, 1);
-            const prevTaxYearEnd = new Date(currentYear, 2, 31);
+            // Previous tax year (April 1 previous year to March 31 current year)
+            const prevTaxYearStart = new Date(currentYear - 1, 3, 1); // April 1 previous year
+            const prevTaxYearEnd = new Date(currentYear, 2, 31); // March 31 current year
             const prevTaxYearTotal = countDaysInRange(prevTaxYearStart, prevTaxYearEnd);
             document.getElementById('prevTaxYearTotal').innerHTML = `${prevTaxYearTotal} <span>天</span>`;
             document.getElementById('prevTaxYearRange').textContent = `${currentYear - 1}年4月1日 - ${currentYear}年3月31日`;
 
-            // Two consecutive tax years total
+            // Two consecutive tax years total (for 300-day threshold)
             const twoYearTotal = taxYearTotal + prevTaxYearTotal;
             const threshold = 300;
             const thresholdMet = twoYearTotal >= threshold;
@@ -1621,7 +2093,7 @@
 
             if (thresholdMet) {
                 twoYearCard.className = 'stat-card threshold-met';
-                twoYearStatus.innerHTML = `<span class="threshold-warning">⚠️ 已達300天門檻</span>`;
+                twoYearStatus.innerHTML = `<span class="threshold-warning">���️ 已達300天門檻</span>`;
             } else {
                 twoYearCard.className = 'stat-card threshold-safe';
                 twoYearStatus.innerHTML = `<span class="threshold-safe">✓ 距離門檻尚餘 ${remaining} 天</span>`;
@@ -1662,6 +2134,7 @@
 
         function renderMonthlyBars() {
             const container = document.getElementById('monthlyBars');
+            const maxDays = 31;
 
             let html = '';
             for (let month = 0; month < 12; month++) {
@@ -1691,8 +2164,7 @@
             document.getElementById('todayDate').textContent = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
         }
 
-        // ==================== Modals ====================
-
+        // Date Range Modal
         function openDateRangeModal() {
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
@@ -1716,6 +2188,7 @@
             closeDateRangeModal();
         }
 
+        // Confirm Modal
         function showConfirm(title, message, callback) {
             document.getElementById('confirmTitle').textContent = title;
             document.getElementById('confirmMessage').textContent = message;
@@ -1750,8 +2223,7 @@
             );
         }
 
-        // ==================== Toast ====================
-
+        // Toast
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = (type === 'success' ? '✓ ' : '⚠ ') + message;
@@ -1762,11 +2234,10 @@
             }, 3000);
         }
 
-        // ==================== Export/Import ====================
-
+        // Export/Import
         function exportData() {
             const exportObj = {
-                version: '2.0',
+                version: '1.0',
                 exportDate: new Date().toISOString(),
                 data: data
             };
@@ -1776,13 +2247,13 @@
 
             const a = document.createElement('a');
             a.href = url;
-            a.download = `hk-days-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `hk-days-${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showToast('備份檔案已下載', 'success');
+            showToast('資料已匯出', 'success');
         }
 
         function triggerImport() {
@@ -1809,7 +2280,7 @@
                         renderCalendar();
                         updateStats();
                         updateTodayInfo();
-                        showToast('備份資料已匯入', 'success');
+                        showToast('資料已匯入', 'success');
                     } else {
                         throw new Error('Invalid format');
                     }
@@ -1823,8 +2294,7 @@
             event.target.value = '';
         }
 
-        // ==================== Toggle Info Section ====================
-
+        // Toggle Info Section
         function toggleInfoSection() {
             const content = document.getElementById('infoContent');
             const toggle = document.getElementById('infoToggle');
@@ -1832,8 +2302,458 @@
             toggle.classList.toggle('expanded');
         }
 
-        // ==================== Start App ====================
+        // ========== Auto Location Functions ==========
+
+        // Check if coordinates are within Hong Kong
+        function isInHongKong(lat, lng) {
+            return (
+                lat >= HK_BOUNDS.minLat &&
+                lat <= HK_BOUNDS.maxLat &&
+                lng >= HK_BOUNDS.minLng &&
+                lng <= HK_BOUNDS.maxLng
+            );
+        }
+
+        // Update location UI
+        function updateLocationUI(status, message, isInHK = false) {
+            const locationInfo = document.getElementById('locationInfo');
+            const locationDot = document.getElementById('locationDot');
+            const locationText = document.getElementById('locationText');
+
+            // Remove all status classes
+            locationInfo.className = 'location-info';
+            locationDot.className = 'location-dot';
+
+            switch (status) {
+                case 'checking':
+                    locationInfo.classList.add('checking');
+                    locationDot.classList.add('checking');
+                    break;
+                case 'in-hk':
+                    locationInfo.classList.add('in-hk');
+                    locationDot.classList.add('in-hk');
+                    break;
+                case 'outside-hk':
+                    locationInfo.classList.add('outside-hk');
+                    break;
+                case 'error':
+                    locationInfo.classList.add('error');
+                    locationDot.classList.add('error');
+                    break;
+            }
+
+            locationText.textContent = message;
+        }
+
+        // Update last check time display
+        function updateLastCheckTime() {
+            const lastCheckEl = document.getElementById('lastCheckTime');
+            if (lastLocationCheck) {
+                const timeStr = lastLocationCheck.toLocaleTimeString('zh-HK', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                lastCheckEl.textContent = `上次檢測：${lastLocationCheck.toLocaleDateString('zh-HK')} ${timeStr}`;
+            } else {
+                lastCheckEl.textContent = '';
+            }
+        }
+
+        // Perform location check
+        function checkLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('您的瀏覽器不支援定位功能'));
+                    return;
+                }
+
+                updateLocationUI('checking', '正在偵測位置...');
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        const inHK = isInHongKong(latitude, longitude);
+
+                        lastLocationCheck = new Date();
+                        updateLastCheckTime();
+
+                        if (inHK) {
+                            updateLocationUI('in-hk', '✅ 您目前在香港');
+
+                            // Auto-mark today if auto-location is enabled
+                            if (autoLocationEnabled) {
+                                const todayStr = formatDate(new Date());
+                                const year = todayStr.substring(0, 4);
+                                if (!data[year]) data[year] = {};
+
+                                if (!data[year][todayStr]) {
+                                    data[year][todayStr] = true;
+                                    saveToStorage();
+                                    renderCalendar();
+                                    updateStats();
+                                    updateTodayInfo();
+                                    showToast('📍 已自動標記今日為「在港」', 'success');
+                                }
+                            }
+                        } else {
+                            updateLocationUI('outside-hk', '🌏 您目前不在香港');
+                        }
+
+                        resolve(inHK);
+                    },
+                    (error) => {
+                        let errorMsg = '無法取得位置';
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = '位置權限被拒絕';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = '無法取得位置資訊';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = '位置請求逾時';
+                                break;
+                        }
+                        updateLocationUI('error', '⚠️ ' + errorMsg);
+                        reject(new Error(errorMsg));
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000 // Cache for 1 minute
+                    }
+                );
+            });
+        }
+
+        // Toggle auto location feature
+        function toggleAutoLocation() {
+            const toggle = document.getElementById('autoLocationToggle');
+            const manualBtn = document.getElementById('manualCheckBtn');
+            autoLocationEnabled = toggle.checked;
+
+            if (autoLocationEnabled) {
+                manualBtn.disabled = false;
+
+                // Check immediately
+                checkLocation().catch(err => {
+                    console.error('Location check failed:', err.message);
+                });
+
+                // Set up periodic check (every 30 minutes)
+                if (locationCheckInterval) {
+                    clearInterval(locationCheckInterval);
+                }
+                locationCheckInterval = setInterval(() => {
+                    checkLocation().catch(err => {
+                        console.error('Periodic location check failed:', err.message);
+                    });
+                }, 30 * 60 * 1000); // 30 minutes
+
+                showToast('📍 自動定位已啟用', 'success');
+            } else {
+                manualBtn.disabled = true;
+
+                // Clear interval
+                if (locationCheckInterval) {
+                    clearInterval(locationCheckInterval);
+                    locationCheckInterval = null;
+                }
+
+                updateLocationUI('', '尚未啟用定位');
+                document.getElementById('lastCheckTime').textContent = '';
+                showToast('自動定位已關閉', 'success');
+            }
+        }
+
+        // Manual location check button
+        function manualLocationCheck() {
+            const btn = document.getElementById('manualCheckBtn');
+            btn.disabled = true;
+            btn.innerHTML = '🔄 檢測中...';
+
+            checkLocation()
+                .then(() => {
+                    btn.innerHTML = '🔄 手動檢測';
+                    btn.disabled = false;
+                })
+                .catch(err => {
+                    btn.innerHTML = '🔄 手動檢測';
+                    btn.disabled = false;
+                    showToast(err.message, 'error');
+                });
+        }
+
+        // ========== PWA Functions ==========
+
+        // Create and register inline Service Worker
+        function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) {
+                console.log('Service Worker not supported');
+                return;
+            }
+
+            // Define the Service Worker code
+            const swCode = `
+                const CACHE_NAME = 'hk-days-tracker-v1';
+                const OFFLINE_URL = '/';
+
+                // Install event - cache essential resources
+                self.addEventListener('install', (event) => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME).then((cache) => {
+                            console.log('Cache opened');
+                            return cache.addAll(['/']);
+                        })
+                    );
+                    self.skipWaiting();
+                });
+
+                // Activate event - clean old caches
+                self.addEventListener('activate', (event) => {
+                    event.waitUntil(
+                        caches.keys().then((cacheNames) => {
+                            return Promise.all(
+                                cacheNames.map((cacheName) => {
+                                    if (cacheName !== CACHE_NAME) {
+                                        return caches.delete(cacheName);
+                                    }
+                                })
+                            );
+                        })
+                    );
+                    self.clients.claim();
+                });
+
+                // Fetch event - serve from cache, fallback to network
+                self.addEventListener('fetch', (event) => {
+                    event.respondWith(
+                        caches.match(event.request).then((response) => {
+                            if (response) {
+                                return response;
+                            }
+                            return fetch(event.request).then((response) => {
+                                // Cache successful responses
+                                if (response && response.status === 200) {
+                                    const responseClone = response.clone();
+                                    caches.open(CACHE_NAME).then((cache) => {
+                                        cache.put(event.request, responseClone);
+                                    });
+                                }
+                                return response;
+                            }).catch(() => {
+                                // Return cached page for navigation requests
+                                if (event.request.mode === 'navigate') {
+                                    return caches.match('/');
+                                }
+                            });
+                        })
+                    );
+                });
+            `;
+
+            // Create blob URL for Service Worker
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+
+            navigator.serviceWorker.register(swUrl, { scope: '/' })
+                .then((registration) => {
+                    console.log('Service Worker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+
+        // Create Web App Manifest dynamically
+        function createManifest() {
+            const manifest = {
+                name: '香港停留日數追蹤器',
+                short_name: 'HK Days',
+                description: '追蹤您在香港的停留日數，計算稅務居民身份及永久居民資格',
+                start_url: './',
+                display: 'standalone',
+                background_color: '#0F0E17',
+                theme_color: '#E94560',
+                orientation: 'portrait-primary',
+                icons: [
+                    {
+                        src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect fill="#E94560" width="512" height="512" rx="90"/><text x="256" y="340" font-size="280" text-anchor="middle" fill="white" font-family="sans-serif">港</text></svg>'),
+                        sizes: '512x512',
+                        type: 'image/svg+xml',
+                        purpose: 'any maskable'
+                    },
+                    {
+                        src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect fill="#E94560" width="192" height="192" rx="35"/><text x="96" y="130" font-size="110" text-anchor="middle" fill="white" font-family="sans-serif">港</text></svg>'),
+                        sizes: '192x192',
+                        type: 'image/svg+xml',
+                        purpose: 'any'
+                    }
+                ],
+                categories: ['utilities', 'productivity'],
+                lang: 'zh-HK'
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+
+            // Add manifest link to head
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestUrl;
+            document.head.appendChild(link);
+        }
+
+        // Check if app is installed as PWA
+        function checkPWAInstalled() {
+            // Check display mode
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                isPWAInstalled = true;
+            }
+
+            // Check iOS standalone mode
+            if (window.navigator.standalone === true) {
+                isPWAInstalled = true;
+            }
+
+            // Update UI
+            if (isPWAInstalled) {
+                const pwaStatus = document.getElementById('pwaStatus');
+                if (pwaStatus) {
+                    pwaStatus.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Handle beforeinstallprompt event
+        function setupInstallPrompt() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent Chrome 67 and earlier from automatically showing the prompt
+                e.preventDefault();
+                // Stash the event so it can be triggered later
+                deferredPrompt = e;
+
+                // Show install banner after a delay (if not dismissed in this session)
+                if (!pwaBannerDismissed) {
+                    setTimeout(() => {
+                        showPWABanner();
+                    }, 3000);
+                }
+            });
+
+            // Listen for successful install
+            window.addEventListener('appinstalled', () => {
+                console.log('PWA was installed');
+                isPWAInstalled = true;
+                hidePWABanner();
+                showToast('🎉 應用程式已成功安裝！', 'success');
+
+                const pwaStatus = document.getElementById('pwaStatus');
+                if (pwaStatus) {
+                    pwaStatus.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Show PWA install banner
+        function showPWABanner() {
+            if (isPWAInstalled || !deferredPrompt) return;
+
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) {
+                banner.classList.add('show');
+            }
+        }
+
+        // Hide PWA install banner
+        function hidePWABanner() {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) {
+                banner.classList.remove('show');
+            }
+        }
+
+        // Dismiss PWA banner
+        function dismissPWABanner() {
+            hidePWABanner();
+            pwaBannerDismissed = true;
+        }
+
+        // Install PWA
+        function installPWA() {
+            if (!deferredPrompt) {
+                // Show manual instructions for iOS
+                showIOSInstallInstructions();
+                return;
+            }
+
+            // Show the install prompt
+            deferredPrompt.prompt();
+
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+                hidePWABanner();
+            });
+        }
+
+        // Show iOS-specific install instructions
+        function showIOSInstallInstructions() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+            if (isIOS) {
+                showConfirm(
+                    '安裝到主畫面',
+                    '在 Safari 中，請點擊底部的「分享」按鈕 ⬆️，然後選擇「加入主畫面」即可安裝此應用程式。',
+                    () => {}
+                );
+            } else {
+                showConfirm(
+                    '安裝到主畫面',
+                    '請使用瀏覽器的選單，選擇「安裝應用程式」或「加入主畫面」選項。',
+                    () => {}
+                );
+            }
+            hidePWABanner();
+        }
+
+        // Setup offline/online detection
+        function setupOfflineDetection() {
+            const offlineIndicator = document.getElementById('offlineIndicator');
+
+            function updateOnlineStatus() {
+                if (navigator.onLine) {
+                    offlineIndicator.classList.remove('show');
+                } else {
+                    offlineIndicator.classList.add('show');
+                }
+            }
+
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+
+            // Check initial status
+            updateOnlineStatus();
+        }
+
+        // Initialize PWA features
+        function initPWA() {
+            createManifest();
+            registerServiceWorker();
+            checkPWAInstalled();
+            setupInstallPrompt();
+            setupOfflineDetection();
+        }
+
+        // Initialize on load
         init();
+        initPWA();
     </script>
 </body>
 </html>
