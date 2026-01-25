@@ -16,7 +16,9 @@
     <meta name="description" content="追蹤您在香港的停留日數，計算稅務居民身份及永久居民資格">
 
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23E94560' width='512' height='512' rx='90'/><text x='256' y='340' font-size='280' text-anchor='middle' fill='white'>港</text></svg>">
+    <link rel="apple-touch-icon" href="https://pfst.cf2.poecdn.net/base/image/55b9b675c776bdcb7644a0b99f8c5dabe7da67ad499e7404ea8828cfe5bf546b?w=180&h=180">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://pfst.cf2.poecdn.net/base/image/55b9b675c776bdcb7644a0b99f8c5dabe7da67ad499e7404ea8828cfe5bf546b?w=512&h=512">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://pfst.cf2.poecdn.net/base/image/55b9b675c776bdcb7644a0b99f8c5dabe7da67ad499e7404ea8828cfe5bf546b?w=192&h=192">
 
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -1127,13 +1129,12 @@
         .pwa-install-icon {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
             flex-shrink: 0;
+            overflow: hidden;
         }
 
         .pwa-install-text h4 {
@@ -1696,7 +1697,7 @@
     <!-- PWA Install Banner -->
     <div class="pwa-install-banner" id="pwaInstallBanner">
         <div class="pwa-install-content">
-            <div class="pwa-install-icon">📱</div>
+            <div class="pwa-install-icon"><img src="https://pfst.cf2.poecdn.net/base/image/55b9b675c776bdcb7644a0b99f8c5dabe7da67ad499e7404ea8828cfe5bf546b?w=96&h=96" alt="App Icon" style="width:100%;height:100%;border-radius:8px;"></div>
             <div class="pwa-install-text">
                 <h4>安裝到主畫面</h4>
                 <p>像原生 App 一樣使用，支援離線存取</p>
@@ -2578,15 +2579,15 @@
                 orientation: 'portrait-primary',
                 icons: [
                     {
-                        src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect fill="#E94560" width="512" height="512" rx="90"/><text x="256" y="340" font-size="280" text-anchor="middle" fill="white" font-family="sans-serif">港</text></svg>'),
+                        src: 'https://pfst.cf2.poecdn.net/base/image/55b9b675c776bdcb7644a0b99f8c5dabe7da67ad499e7404ea8828cfe5bf546b?w=512&h=512',
                         sizes: '512x512',
-                        type: 'image/svg+xml',
+                        type: 'image/png',
                         purpose: 'any maskable'
                     },
                     {
-                        src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect fill="#E94560" width="192" height="192" rx="35"/><text x="96" y="130" font-size="110" text-anchor="middle" fill="white" font-family="sans-serif">港</text></svg>'),
+                        src: 'https://pfst.cf2.poecdn.net/base/image/55b9b675c776bdcb7644a0b99f8c5dabe7da67ad499e7404ea8828cfe5bf546b?w=192&h=192',
                         sizes: '192x192',
-                        type: 'image/svg+xml',
+                        type: 'image/png',
                         purpose: 'any'
                     }
                 ],
